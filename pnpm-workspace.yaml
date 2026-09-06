@@ -1,0 +1,7 @@
+packages:
+  - "app-sdk"
+  - "create-opennas-app"
+  - "examples/*"
+
+allowBuilds:
+  esbuild: true

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pomodoro Timer</title>
+<style>
+  :root { --bg:#fff; --ink:#0f172a; --soft:#64748b; --line:#e2e8f0; --accent:#e11d48; }
+  body.dark { --bg:#0f172a; --ink:#f1f5f9; --soft:#94a3b8; --line:#1e293b; }
+  * { box-sizing:border-box; }
+  body { margin:0; height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px;
+    background:var(--bg); color:var(--ink); font:15px/1.5 ui-sans-serif,system-ui,-apple-system,sans-serif; transition:.2s; }
+  .mode { display:flex; gap:8px; }
+  .mode button { border:1px solid var(--line); background:transparent; color:var(--soft); border-radius:999px;
+    padding:6px 14px; font:inherit; cursor:pointer; }
+  .mode button.on { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .clock { font-size:72px; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:-2px; }
+  .ring { width:220px; height:220px; }
+  .ring circle { fill:none; stroke-width:10; }
+  .ring .bg { stroke:var(--line); }
+  .ring .fg { stroke:var(--accent); stroke-linecap:round; transition:stroke-dashoffset 1s linear; }
+  .wrap { position:relative; display:grid; place-items:center; }
+  .wrap .clock { position:absolute; }
+  .ctrls { display:flex; gap:10px; }
+  .ctrls button { border:0; border-radius:12px; padding:12px 22px; font:600 15px/1 inherit; cursor:pointer; }
+  .primary { background:var(--accent); color:#fff; }
+  .ghost { background:transparent; color:var(--soft); border:1px solid var(--line); }
+  .count { color:var(--soft); font-size:13px; }
+</style></head>
+<body>
+  <div class="mode">
+    <button data-min="25" class="on">Focus · 25</button>
+    <button data-min="5">Break · 5</button>
+  </div>
+  <div class="wrap">
+    <svg class="ring" viewBox="0 0 100 100"><circle class="bg" cx="50" cy="50" r="45"/><circle class="fg" cx="50" cy="50" r="45" id="arc"/></svg>
+    <div class="clock" id="clock">25:00</div>
+  </div>
+  <div class="ctrls">
+    <button class="primary" id="toggle">Start</button>
+    <button class="ghost" id="reset">Reset</button>
+  </div>
+  <div class="count" id="count">0 sessions completed</div>
+
+<script src="/app-sdk/opennas.js"></script>
+<script>
+  const C = 2 * Math.PI * 45;
+  document.getElementById("arc").style.strokeDasharray = C;
+  let total = 25*60, left = total, running = false, sessions = 0, tick = null, isFocus = true, opennas = null;
+
+  const $ = (id) => document.getElementById(id);
+  function fmt(s){ return String((s/60|0)).padStart(2,"0")+":"+String(s%60).padStart(2,"0"); }
+  function paint(){
+    $("clock").textContent = fmt(left);
+    $("arc").style.strokeDashoffset = C * (1 - left/total);
+  }
+  function setMode(min, btn){
+    document.querySelectorAll(".mode button").forEach(b=>b.classList.remove("on"));
+    btn.classList.add("on"); isFocus = min===25;
+    stop(); total = left = min*60; paint();
+  }
+  function stop(){ running=false; clearInterval(tick); $("toggle").textContent="Start"; }
+  function done(){
+    stop();
+    if (isFocus) { sessions++; $("count").textContent = sessions+" session"+(sessions===1?"":"s")+" completed"; }
+    opennas?.notify?.({ title: isFocus ? "Focus session done!" : "Break over", body: isFocus ? "Time for a break ☕" : "Back to focus 🍅", level:"success" });
+  }
+  $("toggle").onclick = () => {
+    if (running) { stop(); return; }
+    running = true; $("toggle").textContent = "Pause";
+    tick = setInterval(()=>{ left--; paint(); if (left<=0) done(); }, 1000);
+  };
+  $("reset").onclick = () => { stop(); left = total; paint(); };
+  document.querySelectorAll(".mode button").forEach(b => b.onclick = () => setMode(+b.dataset.min, b));
+  paint();
+
+  // OpenNAS SDK (graceful if running outside a NAS).
+  window.OpenNAS?.ready?.().then(ctx => {
+    opennas = window.OpenNAS;
+    document.body.classList.toggle("dark", ctx.host.theme === "dark");
+    opennas.onThemeChange?.(t => document.body.classList.toggle("dark", t === "dark"));
+  }).catch(()=>{});
+</script>
+</body></html>

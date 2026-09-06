@@ -1,0 +1,13 @@
+{
+  "name": "@opennas/example-hello-app",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Example OpenNAS app demonstrating the app SDK.",
+  "scripts": {
+    "pack": "node pack.mjs"
+  },
+  "devDependencies": {
+    "fflate": "^0.8.3"
+  }
+}

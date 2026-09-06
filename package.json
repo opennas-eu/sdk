@@ -1,0 +1,17 @@
+{
+  "name": "opennas-sdk",
+  "version": "0.9.0-beta.1",
+  "license": "MIT",
+  "private": true,
+  "description": "The OpenNAS app SDK, the scaffolder, and example apps and themes",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "build": "pnpm --filter @opennas/app-sdk build",
+    "typecheck": "pnpm -r typecheck",
+    "sync-host": "pnpm --filter @opennas/app-sdk sync-host"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  }
+}

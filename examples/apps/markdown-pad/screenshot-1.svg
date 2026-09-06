@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 450" width="720" height="450" font-family="system-ui,sans-serif">
+  <rect width="720" height="450" fill="#ffffff"/>
+  <rect width="720" height="38" fill="#ffffff"/>
+  <line x1="0" y1="38" x2="720" y2="38" stroke="#e2e8f0"/>
+  <text x="16" y="25" font-size="14" fill="#0f172a" font-weight="600">📝 Markdown Pad</text>
+  <text x="704" y="25" font-size="13" fill="#16a34a" text-anchor="end">Saved ✓</text>
+  <line x1="360" y1="38" x2="360" y2="450" stroke="#e2e8f0"/>
+  <!-- editor -->
+  <g font-family="ui-monospace,Menlo,monospace" font-size="14" fill="#334155">
+    <text x="22" y="80"># Welcome to Markdown Pad</text>
+    <text x="22" y="118">Type on the **left**, see it</text>
+    <text x="22" y="140">rendered on the right.</text>
+    <text x="22" y="178">- Auto-saves to your account</text>
+    <text x="22" y="200">- Supports `code` and [links]()</text>
+  </g>
+  <!-- preview -->
+  <text x="382" y="84" font-size="22" fill="#0f172a" font-weight="700">Welcome to Markdown Pad</text>
+  <text x="382" y="120" font-size="14" fill="#334155">Type on the <tspan font-weight="700">left</tspan>, see it rendered</text>
+  <text x="382" y="140" font-size="14" fill="#334155">on the right.</text>
+  <text x="382" y="178" font-size="14" fill="#334155">•  Auto-saves to your account</text>
+  <text x="382" y="200" font-size="14" fill="#334155">•  Supports <tspan font-family="monospace" fill="#6366f1">code</tspan> and <tspan fill="#6366f1">links</tspan></text>
+</svg>

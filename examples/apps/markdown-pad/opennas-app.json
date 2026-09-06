@@ -1,0 +1,16 @@
+{
+  "manifestVersion": 1,
+  "id": "com.opennas.markdown-pad",
+  "name": "Markdown Pad",
+  "version": "1.2.0",
+  "author": "OpenNAS Labs",
+  "description": "A distraction-free Markdown editor with live preview that auto-saves your note to your account.",
+  "icon": "icon.svg",
+  "iconGradient": "from-indigo-400 to-violet-600",
+  "category": "developer",
+  "entry": "index.html",
+  "minRole": "user",
+  "permissions": ["storage"],
+  "screenshots": ["screenshot-1.svg"],
+  "window": { "defaultWidth": 820, "defaultHeight": 600, "minWidth": 520, "minHeight": 380, "resizable": true }
+}

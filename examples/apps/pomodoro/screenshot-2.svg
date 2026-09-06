@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 450" width="720" height="450" font-family="system-ui,sans-serif">
+  <rect width="720" height="450" fill="#0f172a"/>
+  <g transform="translate(360 60)">
+    <rect x="-95" y="0" width="90" height="34" rx="17" fill="#1e293b" stroke="#334155"/>
+    <text x="-50" y="22" fill="#94a3b8" font-size="14" text-anchor="middle">Focus · 25</text>
+    <rect x="5" y="0" width="80" height="34" rx="17" fill="#e11d48"/>
+    <text x="45" y="22" fill="#fff" font-size="14" text-anchor="middle" font-weight="600">Break · 5</text>
+  </g>
+  <circle cx="360" cy="240" r="92" fill="none" stroke="#1e293b" stroke-width="11"/>
+  <circle cx="360" cy="240" r="92" fill="none" stroke="#fb7185" stroke-width="11" stroke-linecap="round"
+    stroke-dasharray="578" stroke-dashoffset="430" transform="rotate(-90 360 240)"/>
+  <text x="360" y="256" fill="#f1f5f9" font-size="56" font-weight="800" text-anchor="middle" font-variant-numeric="tabular-nums">04:58</text>
+  <text x="360" y="370" fill="#64748b" font-size="14" text-anchor="middle">3 sessions completed today</text>
+</svg>

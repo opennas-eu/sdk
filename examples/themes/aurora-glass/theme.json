@@ -1,0 +1,11 @@
+{
+  "themeVersion": 1,
+  "id": "aurora-glass",
+  "name": "Aurora Glass",
+  "author": "OpenNAS Labs",
+  "description": "A packaged aurora image wallpaper with extra-rounded window corners.",
+  "mode": "dark",
+  "accent": "#22d3ee",
+  "wallpaper": "wallpaper.svg",
+  "vars": { "--radius-window": "18px" }
+}

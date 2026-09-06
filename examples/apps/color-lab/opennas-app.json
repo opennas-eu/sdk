@@ -1,0 +1,16 @@
+{
+  "manifestVersion": 1,
+  "id": "com.opennas.color-lab",
+  "name": "Color Lab",
+  "version": "0.9.0",
+  "author": "Jane Dev",
+  "description": "Pick a colour and instantly get its HEX, RGB and HSL values plus a matching palette to copy.",
+  "icon": "icon.svg",
+  "iconGradient": "from-amber-400 to-pink-600",
+  "category": "utilities",
+  "entry": "index.html",
+  "minRole": "user",
+  "permissions": [],
+  "screenshots": ["screenshot-1.svg"],
+  "window": { "defaultWidth": 460, "defaultHeight": 560, "minWidth": 380, "minHeight": 440, "resizable": true }
+}

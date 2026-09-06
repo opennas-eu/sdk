@@ -1,0 +1,26 @@
+{
+  "manifestVersion": 1,
+  "id": "hello-opennas",
+  "name": "Hello OpenNAS",
+  "version": "1.0.0",
+  "author": "OpenNAS",
+  "description": "An example app showing the OpenNAS SDK: user, theme, notifications, storage and files.",
+  "icon": "icon.svg",
+  "iconGradient": "from-fuchsia-400 to-purple-600",
+  "category": "developer",
+  "entry": "index.html",
+  "minRole": "user",
+  "permissions": [
+    "notifications",
+    "storage",
+    "user",
+    "files"
+  ],
+  "window": {
+    "defaultWidth": 540,
+    "defaultHeight": 560,
+    "minWidth": 380,
+    "minHeight": 380,
+    "resizable": true
+  }
+}

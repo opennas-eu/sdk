@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 450" width="720" height="450" font-family="system-ui,sans-serif">
+  <rect width="720" height="450" fill="#ffffff"/>
+  <g transform="translate(360 60)">
+    <rect x="-95" y="0" width="90" height="34" rx="17" fill="#e11d48"/>
+    <text x="-50" y="22" fill="#fff" font-size="14" text-anchor="middle" font-weight="600">Focus · 25</text>
+    <rect x="5" y="0" width="80" height="34" rx="17" fill="#f1f5f9" stroke="#e2e8f0"/>
+    <text x="45" y="22" fill="#64748b" font-size="14" text-anchor="middle">Break · 5</text>
+  </g>
+  <circle cx="360" cy="240" r="92" fill="none" stroke="#e2e8f0" stroke-width="11"/>
+  <circle cx="360" cy="240" r="92" fill="none" stroke="#e11d48" stroke-width="11" stroke-linecap="round"
+    stroke-dasharray="578" stroke-dashoffset="210" transform="rotate(-90 360 240)"/>
+  <text x="360" y="256" fill="#0f172a" font-size="56" font-weight="800" text-anchor="middle" font-variant-numeric="tabular-nums">17:42</text>
+  <g transform="translate(360 370)">
+    <rect x="-110" y="0" width="105" height="44" rx="12" fill="#e11d48"/>
+    <text x="-57" y="28" fill="#fff" font-size="16" font-weight="600" text-anchor="middle">Pause</text>
+    <rect x="5" y="0" width="105" height="44" rx="12" fill="#fff" stroke="#e2e8f0"/>
+    <text x="57" y="28" fill="#64748b" font-size="16" text-anchor="middle">Reset</text>
+  </g>
+</svg>

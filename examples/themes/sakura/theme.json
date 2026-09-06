@@ -1,0 +1,10 @@
+{
+  "themeVersion": 1,
+  "id": "sakura",
+  "name": "Sakura",
+  "author": "Jane Dev",
+  "description": "Soft pink blossoms over a bright morning sky — a light theme.",
+  "mode": "light",
+  "accent": "#db2777",
+  "wallpaper": "radial-gradient(40rem 40rem at 18% 12%, rgb(244 114 182 / 0.40), transparent 60%), radial-gradient(36rem 36rem at 85% 8%, rgb(96 165 250 / 0.25), transparent 60%), linear-gradient(160deg, #fff1f6 0%, #ffe4ef 55%, #fde2f0 100%)"
+}

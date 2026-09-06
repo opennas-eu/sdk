@@ -1,0 +1,14 @@
+{
+  "name": "opennas-example-apps",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Example OpenNAS apps for populating a repository to see how the catalogue looks.",
+  "scripts": {
+    "pack": "node pack-all.mjs",
+    "publish-apps": "node publish-all.mjs"
+  },
+  "dependencies": {
+    "fflate": "^0.8.3"
+  }
+}

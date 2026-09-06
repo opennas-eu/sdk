@@ -1,0 +1,23 @@
+{
+  "name": "create-opennas-app",
+  "version": "0.9.0-beta.1",
+  "description": "Scaffold a new OpenNAS app — manifest, entry page, icon and a zero-dependency packer",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "create-opennas-app": "./index.mjs"
+  },
+  "files": [
+    "index.mjs",
+    "template"
+  ],
+  "keywords": [
+    "opennas",
+    "nas",
+    "app",
+    "scaffold"
+  ],
+  "engines": {
+    "node": ">=20"
+  }
+}

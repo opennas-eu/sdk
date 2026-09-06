@@ -1,0 +1,10 @@
+{
+  "themeVersion": 1,
+  "id": "midnight-rose",
+  "name": "Midnight Rose",
+  "author": "OpenNAS Labs",
+  "description": "Deep navy with a warm rose accent — cosy and dark.",
+  "mode": "dark",
+  "accent": "#e11d48",
+  "wallpaper": "radial-gradient(50rem 40rem at 80% 0%, rgb(244 63 94 / 0.22), transparent 60%), radial-gradient(40rem 40rem at 10% 100%, rgb(124 58 237 / 0.18), transparent 60%), linear-gradient(160deg, #0b1020 0%, #1a1027 55%, #0b1020 100%)"
+}

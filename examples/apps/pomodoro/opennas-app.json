@@ -1,0 +1,16 @@
+{
+  "manifestVersion": 1,
+  "id": "com.opennas.pomodoro",
+  "name": "Pomodoro Timer",
+  "version": "1.0.0",
+  "author": "OpenNAS Labs",
+  "description": "A focus timer with work and break cycles, plus a desktop notification when each session ends.",
+  "icon": "icon.svg",
+  "iconGradient": "from-rose-400 to-red-600",
+  "category": "productivity",
+  "entry": "index.html",
+  "minRole": "user",
+  "permissions": ["notifications"],
+  "screenshots": ["screenshot-1.svg", "screenshot-2.svg"],
+  "window": { "defaultWidth": 420, "defaultHeight": 540, "minWidth": 360, "minHeight": 460, "resizable": true }
+}

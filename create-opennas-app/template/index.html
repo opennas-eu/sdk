@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>__APP_NAME__</title>
+    <style>
+      /* The desktop tells us which theme it's in; these two palettes follow it. */
+      :root {
+        color-scheme: light;
+        --bg: #f8fafc;
+        --surface: #ffffff;
+        --border: #e2e8f0;
+        --text: #0f172a;
+        --muted: #64748b;
+        --accent: #0284c7;
+      }
+      :root[data-theme="dark"] {
+        color-scheme: dark;
+        --bg: #0f172a;
+        --surface: #1e293b;
+        --border: #334155;
+        --text: #f1f5f9;
+        --muted: #94a3b8;
+        --accent: #38bdf8;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        padding: 24px;
+        background: var(--bg);
+        color: var(--text);
+        font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+      }
+      h1 { margin: 0 0 4px; font-size: 20px; }
+      p.sub { margin: 0 0 20px; color: var(--muted); }
+      section {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 12px;
+      }
+      h2 { margin: 0 0 10px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+      button {
+        font: inherit;
+        padding: 7px 14px;
+        border: 0;
+        border-radius: 8px;
+        background: var(--accent);
+        color: #fff;
+        cursor: pointer;
+      }
+      button:hover { filter: brightness(1.08); }
+      code { background: var(--bg); padding: 1px 5px; border-radius: 4px; }
+      dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; margin: 0; }
+      dt { color: var(--muted); }
+      dd { margin: 0; font-variant-numeric: tabular-nums; }
+    </style>
+  </head>
+  <body>
+    <h1>__APP_NAME__</h1>
+    <p class="sub">__APP_DESCRIPTION__</p>
+
+    <section>
+      <h2>Hello</h2>
+      <p id="greeting">Connecting to OpenNAS…</p>
+    </section>
+
+    <section id="storage-demo" hidden>
+      <h2>Storage</h2>
+      <p>Opened <strong id="visits">0</strong> times. This survives reloads and restarts.</p>
+      <button id="reset">Reset counter</button>
+    </section>
+
+    <section id="notify-demo" hidden>
+      <h2>Notifications</h2>
+      <button id="ping">Send a notification</button>
+    </section>
+
+    <section id="system-demo" hidden>
+      <h2>System</h2>
+      <dl>
+        <dt>CPU</dt><dd id="cpu">—</dd>
+        <dt>Memory</dt><dd id="mem">—</dd>
+        <dt>Storage</dt><dd id="disk">—</dd>
+        <dt>Uptime</dt><dd id="up">—</dd>
+      </dl>
+    </section>
+
+    <!-- Served by every OpenNAS at this stable path. -->
+    <script src="/app-sdk/opennas.js"></script>
+    <script>
+      (async () => {
+        const app = await OpenNAS.ready();
+
+        // Follow the desktop's theme, now and whenever the user changes it.
+        const applyTheme = (t) => document.documentElement.setAttribute("data-theme", t);
+        applyTheme(app.theme);
+        app.onThemeChange(applyTheme);
+
+        const can = (p) => app.app.permissions.includes(p);
+        const $ = (id) => document.getElementById(id);
+
+        // ---- settings: declared in opennas-app.json, edited in App Center --
+        // OpenNAS draws the form; we only read what the user chose. No
+        // permission is needed — these are our own fields.
+        const settings = await app.settings.all();
+        document.body.classList.toggle("compact", settings.compact === true);
+
+        // "user" lets us greet them by name; without it we stay generic.
+        const hello = settings.greeting || "Hello";
+        $("greeting").textContent = can("user")
+          ? `${hello}, ${app.user.displayName}! Running on OpenNAS ${app.host.version}.`
+          : `${hello} — running on OpenNAS ${app.host.version}.`;
+
+        // ---- storage: a per-app, per-user key/value store -----------------
+        if (can("storage")) {
+          $("storage-demo").hidden = false;
+          const bump = async () => {
+            const n = Number((await app.storage.get("visits")) ?? 0) + 1;
+            await app.storage.set("visits", String(n));
+            $("visits").textContent = n;
+          };
+          await bump();
+          $("reset").addEventListener("click", async () => {
+            await app.storage.set("visits", "0");
+            $("visits").textContent = "0";
+          });
+        }
+
+        // ---- notifications: post to the desktop's bell --------------------
+        if (can("notifications")) {
+          $("notify-demo").hidden = false;
+          $("ping").addEventListener("click", () => {
+            app.notify({ title: "__APP_NAME__", body: "Hello from your app!", level: "success" });
+          });
+        }
+
+        // ---- system: read-only machine stats ------------------------------
+        if (can("system")) {
+          $("system-demo").hidden = false;
+          const gb = (bytes) => `${(bytes / 1024 ** 3).toFixed(1)} GB`;
+          const refresh = async () => {
+            const s = await app.system.info();
+            $("cpu").textContent =
+              `${s.cpu.loadPercent.toFixed(1)}% of ${s.cpu.cores} cores` +
+              (s.cpu.temperatureC != null ? ` · ${s.cpu.temperatureC}°C` : "");
+            $("mem").textContent = `${gb(s.memory.usedBytes)} / ${gb(s.memory.totalBytes)}`;
+            $("disk").textContent = s.storage.totalBytes
+              ? `${gb(s.storage.usedBytes)} / ${gb(s.storage.totalBytes)}`
+              : "no data volumes";
+            $("up").textContent = `${Math.floor(s.uptimeSeconds / 3600)}h`;
+          };
+          await refresh();
+          // Stats are sampled at most once a second, so there's no point polling faster.
+          setInterval(refresh, 2000);
+        }
+
+        app.setTitle("__APP_NAME__");
+      })().catch((err) => {
+        document.getElementById("greeting").textContent = `Couldn't start: ${err.message}`;
+      });
+    </script>
+  </body>
+</html>

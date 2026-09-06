@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hello OpenNAS</title>
+    <!-- The OpenNAS SDK is hosted by the NAS at a stable path. -->
+    <script src="/app-sdk/opennas.js"></script>
+    <style>
+      :root {
+        --bg: #ffffff; --fg: #0f172a; --muted: #64748b; --card: #f1f5f9; --accent: #2563eb;
+      }
+      html[data-theme="dark"] {
+        --bg: #1b2434; --fg: #e7edf5; --muted: #8a98ac; --card: #222d40; --accent: #60a5fa;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0; font: 14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        background: var(--bg); color: var(--fg);
+        padding: 20px; transition: background .2s, color .2s;
+      }
+      h1 { font-size: 18px; margin: 0 0 4px; }
+      p.sub { color: var(--muted); margin: 0 0 16px; }
+      .card { background: var(--card); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+      .count { font-size: 40px; font-weight: 700; margin: 4px 0 12px; }
+      button {
+        font: inherit; font-weight: 600; cursor: pointer; border: 0; border-radius: 8px;
+        padding: 8px 14px; background: var(--accent); color: #fff; transition: opacity .1s;
+      }
+      button:active { opacity: .85; }
+      button.ghost { background: transparent; color: var(--accent); padding: 8px 8px; }
+      .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+      code { background: var(--card); padding: 1px 5px; border-radius: 4px; }
+      .pill { font-size: 11px; color: var(--muted); }
+    </style>
+  </head>
+  <body>
+    <h1>👋 Hello, OpenNAS</h1>
+    <p class="sub" id="host">Connecting to the desktop…</p>
+
+    <div class="card">
+      <div class="pill">A counter, persisted with <code>opennas.storage</code></div>
+      <div class="count" id="count">0</div>
+      <div class="row">
+        <button id="inc">Add one</button>
+        <button class="ghost" id="reset">Reset</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="pill">A note, saved to a file with <code>opennas.files</code></div>
+      <textarea id="note" rows="3" placeholder="Type something — it's saved to note.txt in this app's folder"
+        style="width:100%;margin-top:8px;border-radius:8px;border:0;padding:8px;background:var(--bg);color:var(--fg);font:inherit;resize:vertical"></textarea>
+      <div class="row" style="margin-top:8px">
+        <button id="save">Save note</button>
+        <span class="pill" id="saved"></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="pill">Ring the OpenNAS bell with <code>opennas.notify</code></div>
+      <div class="row" style="margin-top:8px">
+        <button id="notify">Send a notification</button>
+      </div>
+    </div>
+
+    <script>
+      (async () => {
+        const app = await OpenNAS.ready();
+
+        // Follow the desktop theme.
+        const applyTheme = (t) => document.documentElement.setAttribute("data-theme", t);
+        applyTheme(app.theme);
+        app.onThemeChange(applyTheme);
+
+        const who = app.user ? app.user.displayName : "there";
+        document.getElementById("host").textContent =
+          `Hi ${who}! Running on OpenNAS ${app.host.version || "?"} · theme: ${app.theme} · granted: ${app.app.permissions.join(", ") || "none"}`;
+
+        // A note, backed by a real file in the app's private folder.
+        const noteEl = document.getElementById("note");
+        const savedEl = document.getElementById("saved");
+        noteEl.value = (await app.files.read("note.txt")) || "";
+        document.getElementById("save").onclick = async () => {
+          await app.files.write("note.txt", noteEl.value);
+          savedEl.textContent = "saved ✓";
+          setTimeout(() => (savedEl.textContent = ""), 1500);
+        };
+
+        // Persisted counter (per app, per user).
+        const countEl = document.getElementById("count");
+        let count = parseInt((await app.storage.get("count")) || "0", 10) || 0;
+        const render = () => (countEl.textContent = String(count));
+        render();
+
+        document.getElementById("inc").onclick = async () => {
+          count++; render();
+          await app.storage.set("count", String(count));
+        };
+        document.getElementById("reset").onclick = async () => {
+          count = 0; render();
+          await app.storage.delete("count");
+        };
+        document.getElementById("notify").onclick = () =>
+          app.notify({ title: "Hello from your app!", body: `The counter is at ${count}.`, level: "success" });
+      })().catch((err) => {
+        document.getElementById("host").textContent = "SDK error: " + (err && err.message || err);
+      });
+    </script>
+  </body>
+</html>

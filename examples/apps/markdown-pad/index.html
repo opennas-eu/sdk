@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Markdown Pad</title>
+<style>
+  :root { --bg:#fff; --ink:#0f172a; --soft:#64748b; --line:#e2e8f0; --accent:#6366f1; --code:#f1f5f9; }
+  body.dark { --bg:#0f172a; --ink:#e2e8f0; --soft:#94a3b8; --line:#1e293b; --accent:#818cf8; --code:#1e293b; }
+  * { box-sizing:border-box; }
+  body { margin:0; height:100vh; display:flex; flex-direction:column; background:var(--bg); color:var(--ink);
+    font:15px/1.6 ui-sans-serif,system-ui,-apple-system,sans-serif; }
+  header { display:flex; align-items:center; gap:10px; padding:8px 14px; border-bottom:1px solid var(--line); font-size:13px; color:var(--soft); }
+  header b { color:var(--ink); }
+  .saved { margin-left:auto; }
+  main { flex:1; display:grid; grid-template-columns:1fr 1fr; min-height:0; }
+  textarea { border:0; outline:0; resize:none; padding:18px; background:var(--bg); color:var(--ink);
+    font:14px/1.6 ui-monospace,Menlo,monospace; border-right:1px solid var(--line); }
+  .preview { padding:18px 22px; overflow:auto; }
+  .preview h1,.preview h2,.preview h3 { line-height:1.25; }
+  .preview h1 { font-size:24px; } .preview h2 { font-size:20px; }
+  .preview code { background:var(--code); padding:2px 5px; border-radius:5px; font-family:ui-monospace,Menlo,monospace; font-size:.9em; }
+  .preview pre { background:var(--code); padding:12px; border-radius:10px; overflow:auto; }
+  .preview a { color:var(--accent); }
+  .preview blockquote { border-left:3px solid var(--accent); margin:0; padding-left:14px; color:var(--soft); }
+</style></head>
+<body>
+  <header>📝 <b>Markdown Pad</b> <span>· live preview</span> <span class="saved" id="saved">Loading…</span></header>
+  <main>
+    <textarea id="src" spellcheck="false"></textarea>
+    <div class="preview" id="out"></div>
+  </main>
+
+<script src="/app-sdk/opennas.js"></script>
+<script>
+  const src = document.getElementById("src"), out = document.getElementById("out"), saved = document.getElementById("saved");
+  let opennas = null, saveT = null;
+
+  // Tiny, safe-enough markdown renderer (escapes HTML first, then formats).
+  function esc(s){ return s.replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+  function md(t){
+    let h = esc(t);
+    h = h.replace(/```([\s\S]*?)```/g, (_,c)=>"<pre><code>"+c.replace(/^\n/,"")+"</code></pre>");
+    h = h.replace(/^### (.*)$/gm,"<h3>$1</h3>").replace(/^## (.*)$/gm,"<h2>$1</h2>").replace(/^# (.*)$/gm,"<h1>$1</h1>");
+    h = h.replace(/^&gt; (.*)$/gm,"<blockquote>$1</blockquote>");
+    h = h.replace(/`([^`]+)`/g,"<code>$1</code>");
+    h = h.replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>").replace(/\*([^*]+)\*/g,"<em>$1</em>");
+    h = h.replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g,'<a href="$2" target="_blank" rel="noreferrer">$1</a>');
+    h = h.replace(/^- (.*)$/gm,"<li>$1</li>").replace(/(<li>[\s\S]*?<\/li>)/g,"<ul>$1</ul>");
+    return h.split(/\n{2,}/).map(b => /^<(h\d|ul|pre|blockquote)/.test(b.trim()) ? b : "<p>"+b.replace(/\n/g,"<br>")+"</p>").join("");
+  }
+  function render(){ out.innerHTML = md(src.value); }
+  function save(){
+    if (!opennas) return;
+    saved.textContent = "Saving…";
+    opennas.storage.set("note", src.value).then(()=> saved.textContent = "Saved ✓").catch(()=> saved.textContent = "Save failed");
+  }
+  src.addEventListener("input", () => { render(); clearTimeout(saveT); saveT = setTimeout(save, 600); });
+
+  const DEMO = "# Welcome to Markdown Pad\n\nType on the left, see it **rendered** on the right.\n\n- Auto-saves to your OpenNAS account\n- Supports `code`, > quotes and [links](https://opennas.eu)\n\n```\ncode blocks too\n```";
+
+  if (window.OpenNAS) {
+    window.OpenNAS.ready().then(ctx => {
+      opennas = window.OpenNAS;
+      document.body.classList.toggle("dark", ctx.host.theme === "dark");
+      opennas.onThemeChange?.(t => document.body.classList.toggle("dark", t === "dark"));
+      return opennas.storage.get("note");
+    }).then(v => { src.value = v || DEMO; render(); saved.textContent = "Saved ✓"; })
+      .catch(() => { src.value = DEMO; render(); saved.textContent = "Offline"; });
+  } else { src.value = DEMO; render(); saved.textContent = "Preview"; }
+</script>
+</body></html>

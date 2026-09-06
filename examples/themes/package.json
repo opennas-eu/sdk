@@ -1,0 +1,13 @@
+{
+  "name": "opennas-example-themes",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Example .onthm themes for OpenNAS.",
+  "scripts": {
+    "pack": "node pack-themes.mjs"
+  },
+  "dependencies": {
+    "fflate": "^0.8.3"
+  }
+}

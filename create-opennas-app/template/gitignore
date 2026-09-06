@@ -1,0 +1,4 @@
+node_modules/
+*.onpkg
+# Your ed25519 signing key — never commit or package this.
+*.key
