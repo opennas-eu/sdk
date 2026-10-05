@@ -9,7 +9,9 @@ const here = dirname(fileURLToPath(import.meta.url));
 
 // Files we never ship inside a package. (*.key = the publisher's PRIVATE key —
 // it must never be packaged. SIGNATURE, if present, IS shipped.)
-const SKIP = new Set(["pack.mjs", "package.json", "README.md", "node_modules"]);
+// Must stay identical to the SKIP list in @opennas/app-sdk's opennas-sign.mjs,
+// or a signed package won't verify: the signature covers what that tool saw.
+const SKIP = new Set(["node_modules", "pack.mjs", "dev.mjs", "package.json", "README.md", ".git", ".gitignore"]);
 
 function collect(dir, base = dir) {
   const out = {};

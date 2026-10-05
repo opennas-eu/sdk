@@ -14,7 +14,9 @@ const here = dirname(fileURLToPath(import.meta.url));
 // it must never end up in an archive. SIGNATURE, if present, IS shipped.
 // dev.mjs is tooling for the author, not part of the app — shipping it would
 // put a file server inside every installed copy.
-const SKIP = new Set(["pack.mjs", "dev.mjs", "package.json", "README.md", "node_modules", ".git", ".gitignore"]);
+// Must stay identical to the SKIP list in @opennas/app-sdk's opennas-sign.mjs,
+// or a signed package won't verify: the signature covers what that tool saw.
+const SKIP = new Set(["node_modules", "pack.mjs", "dev.mjs", "package.json", "README.md", ".git", ".gitignore"]);
 
 function collect(dir, base = dir) {
   const out = {};

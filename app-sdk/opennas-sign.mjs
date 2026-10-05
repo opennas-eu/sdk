@@ -12,9 +12,12 @@ import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from "
 import { join, relative, sep } from "node:path";
 
 const KEYFILE_DEFAULT = "publisher.key";
-// Must match pack.mjs exactly so the signed digest covers the same files that
-// actually ship. The private *.key never goes into the package.
-const SKIP = new Set(["node_modules", "pack.mjs", "package.json", "README.md"]);
+// Must match pack.mjs exactly (create-opennas-app/template/pack.mjs and
+// examples/hello-app/pack.mjs carry the same list) so the signed digest covers
+// the same files that actually ship. If the two disagree, every package
+// verifies as unsigned on the NAS, which digests whatever is in the zip.
+// The private *.key never goes into the package.
+const SKIP = new Set(["node_modules", "pack.mjs", "dev.mjs", "package.json", "README.md", ".git", ".gitignore"]);
 const skip = (name) => SKIP.has(name) || name.endsWith(".onpkg") || name.endsWith(".key");
 
 function collect(dir, base = dir, out = {}) {
