@@ -205,7 +205,6 @@ interface Pending {
   reject: (err: Error) => void;
 }
 
-let seq = 0;
 const pending = new Map<number, Pending>();
 const themeListeners = new Set<(t: Theme) => void>();
 const closeHandlers = new Set<() => boolean | Promise<boolean>>();
@@ -216,13 +215,48 @@ let appUser: AppUser | null = null;
 let theme: Theme = "light";
 let readyPromise: Promise<OpenNASApp> | null = null;
 
+/**
+ * The token OpenNAS loaded this frame with, from our own URL.
+ *
+ * The host identifies an app by its iframe's window, and a window outlives
+ * navigation - so it also wants proof that a message comes from the document
+ * it loaded, not from a page the frame was sent to later. Read once, at load,
+ * before an app's router has a chance to rewrite the URL.
+ */
+const frameToken: string = (() => {
+  try {
+    return new URLSearchParams(window.location.search).get("opennas_frame") ?? "";
+  } catch {
+    return "";
+  }
+})();
+
+/**
+ * A request id nobody else can predict. Replies are only accepted from the
+ * parent window anyway; this just means they can't be matched by counting.
+ */
+function nextId(): number {
+  const buf = new Uint32Array(2);
+  for (;;) {
+    crypto.getRandomValues(buf);
+    // 53 bits: a safe integer, so it survives the round trip as a number.
+    const id = (buf[0]! & 0x1fffff) * 0x100000000 + buf[1]!;
+    if (id !== 0 && !pending.has(id)) return id;
+  }
+}
+
+/** Every message to the host goes through here, stamped with the frame token. */
+function toHost(message: Record<string, unknown>): void {
+  // Origin is opaque inside the sandbox, so the host validates by source.
+  window.parent.postMessage({ __opennas: PROTOCOL, frame: frameToken, ...message }, "*");
+}
+
 function post(type: string, payload: unknown, onProgress?: TransferProgress): Promise<unknown> {
-  const id = ++seq;
+  const id = nextId();
   return new Promise((resolve, reject) => {
     pending.set(id, { resolve, reject });
     if (onProgress) progressListeners.set(id, onProgress);
-    // Origin is opaque inside the sandbox, so the host validates by source.
-    window.parent.postMessage({ __opennas: PROTOCOL, id, type, payload }, "*");
+    toHost({ id, type, payload });
   });
 }
 
@@ -241,12 +275,16 @@ if (typeof window !== "undefined") {
       | { __opennas?: number; id?: number; ok?: boolean; result?: unknown; error?: string; event?: string; payload?: unknown }
       | null;
     if (!d || d.__opennas !== PROTOCOL) return;
+    // Only the desktop speaks for the desktop. Without this, any other frame
+    // that can reach this window - a sibling app, a page this app embeds -
+    // could forge replies, theme changes or close requests.
+    if (e.source !== window.parent || window.parent === window) return;
 
     if (d.event === "beforeClose") {
       // The host is asking whether this window may close. Every registered
       // handler has to agree; anything that throws is treated as "don't know",
       // which must not be a veto.
-      const requestId = (d.payload as { requestId?: number } | undefined)?.requestId;
+      const requestId = (d.payload as { requestId?: string } | undefined)?.requestId;
       void (async () => {
         let allow = true;
         for (const fn of closeHandlers) {
@@ -256,7 +294,7 @@ if (typeof window !== "undefined") {
             /* a broken handler doesn't get to keep the window open */
           }
         }
-        window.parent.postMessage({ __opennas: PROTOCOL, beforeCloseReply: requestId, allow }, "*");
+        toHost({ beforeCloseReply: requestId, allow });
       })();
       return;
     }
